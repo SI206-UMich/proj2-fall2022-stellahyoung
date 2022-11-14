@@ -379,6 +379,3 @@ if __name__ == '__main__':
     check_policy_numbers(database)
     unittest.main(verbosity=2)
 
-
-
-fourth
