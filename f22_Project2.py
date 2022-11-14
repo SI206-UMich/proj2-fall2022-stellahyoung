@@ -1,10 +1,9 @@
-import csv
-import os
-import re
-import unittest
 from xml.sax import parseString
-
 from bs4 import BeautifulSoup
+import re
+import os
+import csv
+import unittest
 
 
 def get_listings_from_search_results(html_file):
@@ -95,16 +94,17 @@ def get_listing_information(listing_id):
         
         for item in policy_number:
             policy = item.text
-            pol_num = policy.split(':')[-1]
-            x = pol_num
             
-            if 'pending' in x:
-                pol_num = "Pending"
-            elif 'exempt' in x:
-                pol_num = "Exempt"
+            x = policy.split(':')[-1]
+            if 'pending' in x.lower():
+                x = "Pending"
+            elif 'exempt' in x.lower():
+                x = "Exempt"
+            elif 'not' in x.lower():
+                x = "Exempt"
             else:
-                x = pol_num
-
+                x = x
+            
             
         
 
@@ -140,8 +140,8 @@ def get_listing_information(listing_id):
                 
 
     
-        return (pol_num, room_type, num_bedrooms)
-print(get_listing_information('1623609'))
+        return (x, room_type, num_bedrooms)
+print(get_listing_information('4616596'))
 
 
 def get_detailed_listing_database(html_file):
@@ -168,7 +168,7 @@ def get_detailed_listing_database(html_file):
 
 
 
-#print(get_detailed_listing_database('1623609'))  
+print(get_detailed_listing_database("html_files/mission_district_search_results.html"))  
 
 
 
@@ -226,15 +226,17 @@ def check_policy_numbers(data):
 
     """
     lst = []
-    regex = r'(20\d{2}-00\d{4}STR)|(STR-000\d{4})'
+    regex = '20\d{2}\-00\d{4}STR|STR\-000\d{4}'
     for x in data:
-        policy_nums = x[3]
-        if x[3] != 'Pending' and x[3] != 'Exempt':
-            continue
-        if len(re.findall(regex,policy_nums))==0:
-            lst.append(policy_nums)
-        return lst 
+        policy_list = re.findall(regex, x[3])
+        if len(policy_list) == 0 and x[3].lower() != "pending" and x[3].lower() != "exempt":
+            lst.append(x[2])
+    return lst 
+    
 
+
+
+print(check_policy_numbers(get_detailed_listing_database("html_files/mission_district_search_results.html")))
 
 def extra_credit(listing_id):
     """
@@ -363,7 +365,8 @@ class TestCases(unittest.TestCase):
         self.assertEqual(len(invalid_listings), 1)
 
         # check that the element in the list is a string
-        self.assertEqual(type(invalid_listings), str)
+        for item in invalid_listings:
+            self.assertEqual(type(item), str)
 
         # check that the first element in the list is '16204265'
         self.assertEqual(invalid_listings[0], '16204265')
@@ -375,3 +378,7 @@ if __name__ == '__main__':
     write_csv(database, "airbnb_dataset.csv")
     check_policy_numbers(database)
     unittest.main(verbosity=2)
+
+
+
+second
